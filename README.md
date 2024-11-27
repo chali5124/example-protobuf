@@ -1,5 +1,3 @@
-# example-protobuf
-
 protobuf 리포지토리 예제
 
 ### overview
