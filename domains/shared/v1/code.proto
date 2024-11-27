@@ -1,0 +1,119 @@
+syntax = "proto3";
+
+package chali5124.shared.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/chali5124/example-protobuf/generated/go/chali5124/shared/v1";
+option java_multiple_files = true;
+option java_outer_classname = "CodeProto";
+option java_package = "com.chali5124.shared.v1";
+// These annotations are used when generating the OpenAPI file.
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info : {version : "1.0"}
+  // external_docs: {
+  //   url: "https://github.com/chali5124/example-protobuf"
+  //   description: "grpc by protobuf"
+  // }
+  schemes : HTTPS
+};
+
+// for dynamodb
+message CodeKey {
+  string group = 1;
+  string key = 2;
+}
+
+message Code {
+  string group = 1;
+  string key = 2;
+  optional string name = 3;
+  optional string description = 4;
+  optional string createdAt = 10000;
+  optional string updatedAt = 10001;
+  // optional string deleted_at = 10002;
+}
+
+message CodesServiceFindAllResponse {
+  repeated Code items = 1;
+  optional int32 totalCount = 2;
+}
+
+message CodesServiceFindOneRequest {
+  string group = 1;
+  string key = 2;
+}
+
+message CodesServiceFindManyRequest {
+  // int32 page = 1;
+  string group = 1; // dynamodb 인 경우 query()를 위해 필수로 처리
+  optional int32 limit = 2;
+  optional CodeKey lastKey = 3; // for dynamodb
+}
+
+message CodesServiceFindManyResponse {
+  repeated Code items = 1;
+  int32 totalCount = 2;
+  // optional int32 page = 3;
+  optional CodeKey lastKey = 3; // for dynamodb
+  optional int32 limit = 4;
+}
+
+message CodesServiceCreateRequest {
+  string group = 1;
+  string key = 2;
+  string name = 3;
+  optional string description = 4;
+}
+
+message CodesServiceUpdateRequest {
+  string group = 1;
+  string key = 2;
+  optional string name = 3;
+  optional string description = 4;
+}
+
+message CodesServiceDeleteRequest {
+  string group = 1;
+  string key = 2;
+}
+
+// service to implement
+service CodesService {
+  rpc FindAll(google.protobuf.Empty)
+      returns (CodesServiceFindAllResponse) {
+    option (google.api.http) = {
+      get : "/shared/v1/code/all"
+    };
+  }
+  rpc FindMany(CodesServiceFindManyRequest)
+      returns (CodesServiceFindManyResponse) {
+    option (google.api.http) = {
+      get : "/shared/v1/code"
+    };
+  }
+  rpc FindOne(CodesServiceFindOneRequest) returns (Code) {
+    option (google.api.http) = {
+      get : "/shared/v1/code/{group}/{key}"
+    };
+  }
+  rpc Create(CodesServiceCreateRequest) returns (Code) {
+    option (google.api.http) = {
+      post : "/shared/v1/code"
+      body : "*"
+    };
+  }
+  rpc Update(CodesServiceUpdateRequest) returns (Code) {
+    option (google.api.http) = {
+      put : "/shared/v1/code/{group}/{key}"
+      body : "*"
+    };
+  }
+  rpc Delete(CodesServiceDeleteRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : "/shared/v1/code/{group}/{key}"
+    };
+  }
+}

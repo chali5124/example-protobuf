@@ -1,0 +1,18 @@
+version: v1
+
+plugins:
+  - plugin: go
+    out: generated/go
+    opt:
+      - paths=source_relative
+  - plugin: go-grpc
+    out: generated/go
+    opt:
+      - paths=source_relative
+  - plugin: grpc-gateway
+    out: generated/go
+    opt:
+      - paths=source_relative
+      - allow_repeated_fields_in_body=true
+      - generate_unbound_methods=true
+      # - standalone=true

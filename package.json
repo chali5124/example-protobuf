@@ -1,0 +1,26 @@
+{
+  "name": "example-protobuf",
+  "version": "0.0.1",
+  "description": "protobuf repogitory",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "gen:v1": "buf generate --clean --template buf.gen.v1.yaml .",
+    "gen:v2": "buf generate --template buf.gen.v2.yaml .",
+    "lint": "buf lint ./",
+    "format": "buf format -d -w ./ --exit-code"
+  },
+  "keywords": [
+    "protobuf"
+  ],
+  "author": "chali5124@gmail.com",
+  "license": "ISC",
+  "dependencies": {
+    "@bufbuild/protoc-gen-es": "^1.10.0",
+    "nestjs-proto-gen-ts": "^1.0.21",
+    "ts-proto": "^1.181.2"
+  },
+  "devDependencies": {
+    "@bufbuild/buf": "^1.43.0"
+  }
+}

@@ -1,0 +1,136 @@
+syntax = "proto3";
+
+package chali5124.shared.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/chali5124/example-protobuf/generated/go/chali5124/shared/v1";
+option java_multiple_files = true;
+option java_outer_classname = "VersionProto";
+option java_package = "com.chali5124.shared.v1";
+// These annotations are used when generating the OpenAPI file.
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info : {version : "1.0"}
+  // external_docs: {
+  //   url: "https://github.com/chali5124/example-protobuf"
+  //   description: "grpc by protobuf"
+  // }
+  schemes : HTTPS
+};
+
+// 버전환경
+enum VersionEnvironment {
+  VERSION_PLATFORM_UNSPECIFIED = 0; // 로컬
+  VERSION_PLATFORM_WEB = 1;         // 웹
+  VERSION_PLATFORM_IOS = 2;         // IOS
+  VERSION_PLATFORM_AOS = 3;         // AOS
+  VERSION_PLATFORM_WIN = 4;         // WIN
+}
+
+// for dynamodb
+message VersionKey {
+  string appId = 1;
+  VersionEnvironment platform = 2;
+}
+
+message Version {
+  string appId = 1;
+  VersionEnvironment platform = 2;
+  optional string version = 3;
+  optional string build_version = 4;
+  optional string description = 5;
+  optional bool isRequired = 6; // 필수 여부
+  optional string createdAt = 10000;
+  optional string updatedAt = 10001;
+  // optional string deleted_at = 10002;
+}
+
+message VersionsServiceFindAllResponse {
+  repeated Version items = 1;
+  optional int32 total = 2;
+}
+
+message VersionsServiceFindOneRequest {
+  string appId = 1;
+  VersionEnvironment platform = 2;
+}
+
+message VersionsServiceFindManyRequest {
+  // int32 page = 1;
+  string platform = 1; // dynamodb 인 경우 query()를 위해 필수로 처리
+  optional int32 limit = 2;
+  optional VersionKey lastKey = 3; // for dynamodb
+}
+
+message VersionsServiceFindManyResponse {
+  repeated Version items = 1;
+  int32 totalCount = 2;
+  // optional int32 page = 3;
+  optional VersionKey lastKey = 3; // for dynamodb
+  optional int32 limit = 4;
+}
+
+message VersionsServiceCreateRequest {
+  string appId = 1;
+  VersionEnvironment platform = 2;
+  string version = 3;
+  optional string description = 4;
+  optional bool isRequired = 5;
+}
+
+message VersionsServiceUpdateRequest {
+  string appId = 1;
+  VersionEnvironment platform = 2;
+  optional string version = 3;
+  optional string description = 4;
+  optional bool isRequired = 5;
+}
+
+message VersionsServiceDeleteRequest {
+  string appId = 1;
+  VersionEnvironment platform = 2;
+}
+
+service VersionsService {
+  rpc FindAll(google.protobuf.Empty)
+      returns (VersionsServiceFindAllResponse) {
+    option (google.api.http) = {
+      get : "/shared/v1/version/all"
+    };
+    // option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      // summary: "Add a user"
+      // description: "Add a user to the server."
+      // tags: "Users"
+    // };
+  }
+  rpc FindMany(VersionsServiceFindManyRequest)
+      returns (VersionsServiceFindManyResponse) {
+    option (google.api.http) = {
+      get : "/shared/v1/version"
+    };
+  }
+  rpc FindOne(VersionsServiceFindOneRequest) returns (Version) {
+    option (google.api.http) = {
+      get : "/shared/v1/version/{appId}/{platform}"
+    };
+  }
+  rpc Create(VersionsServiceCreateRequest) returns (Version) {
+    option (google.api.http) = {
+      post : "/shared/v1/version"
+      body : "*"
+    };
+  }
+  rpc Update(VersionsServiceUpdateRequest) returns (Version) {
+    option (google.api.http) = {
+      put : "/shared/v1/version/{appId}/{platform}"
+      body : "*"
+    };
+  }
+  rpc Delete(VersionsServiceDeleteRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : "/shared/v1/version/{appId}/{platform}"
+    };
+  }
+}

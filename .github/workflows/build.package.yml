@@ -1,0 +1,57 @@
+name: CI - package
+
+on:
+  release:
+    types:
+      - created
+
+env:
+  APP_ORGANIZATION: chali5124
+  APP_LAYER: example
+  APP_DOMAIN: protobuf
+
+jobs:
+  build:
+    name: Module Build to Package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        node-version:
+          - 20
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Get package info
+        id: package-info
+        uses: luizfelipelaviola/get-package-info@v1
+        with:
+          path: .
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Install buf
+        uses: bufbuild/buf-setup-action@v1.32.0
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Buf format
+        run: buf format -d -w . --exit-code
+
+      #   if: ${{ always() }}
+      # - name: Buf lint
+      #   uses: bufbuild/buf-lint-action@v1
+
+      # - name: Buf breaking change detection
+      #   uses: bufbuild/buf-breaking-action@v1
+      #   with:
+      #     against: https://github.com/bufbuild/protovalidate.git#branch=main
+      #   if: ${{ always() }}
+      # - name: generate with buf v1
+      #   run: buf generate --template buf.gen.v1.yaml
+      # - name: generate with buf v2
+      #   run: buf generate --template buf.gen.v2.yaml
